@@ -1,5 +1,5 @@
 # KrunchLoader
-A Custom Loader for Trailmappers, designed to make life a little bit easier for mappers.
+A Custom Loader for Trailmappers designed to make life a little bit easier for mappers.
 
 Features:
 
@@ -90,17 +90,18 @@ You can add a physics material to a custom object by naming a texture in a speci
 
 mtl_MaterialName_texturename.png (or .jpg)
 
-mtl = Material prefix  << allows the code to find objects with special physics materials
-_MaterialName_ = physics material name  << the script will 'extract' the physics material name from between the underscores
-NOTE: The name between the underscores must EXACTLY match one of the materials in the Physics Material Names list below (Case Sensitive!)
+"mtl" = Material prefix  << allows the code to find objects with special physics materials
+"_MaterialName_" = physics material name  << the script will extract the physics material name from between the underscores
+
+*Note: The name between the underscores must EXACTLY match one of the materials in the Physics Material Names list below (Case Sensitive!)
 
 Texture Naming Examples:
-mtl_Grass_mainterrain.png  << started with a texture called "mainterrain.png"
-mtl_Sand_sandyzones.png  << started with a texture called "sandyzones.png"
-mtl_IceSlippery_shinysmooth.jpg  << started with a texture called "shinysmooth.jpg"
+mtl_Grass_mainterrain.png  << renamed a texture called "mainterrain.png"
+mtl_Sand_sandyzones.png  << renamed a texture called "sandyzones.png"
+mtl_IceSlippery_shinysmooth.jpg  << renamed a texture called "shinysmooth.jpg"
 
 Physics Material Names (Case Sensitive!)
-----------------------------------------
+```
 Metal
 Sand
 Stone
@@ -117,8 +118,9 @@ IceSlippery
 Tundra
 SnowHard
 GrassYellow
---------------------------
-Note: Any texture name without a Physics Material name will simply use the Asphalt physics material
+```
+
+*Note: Any texture name without a Physics Material name will simply use the Asphalt physics material
 
 
 **Adding Extra SpawnPoints in Trailmappers**
@@ -144,6 +146,7 @@ Method:
 6. Repeat for each extra SpawnPoint that you want to add
 
 Note: These objects and textures will not be loaded into your actual map when loaded into Trailmakers - they are filtered out and only used for the locations, rotation and names of your SpawnPoints.
+
 
 **Multiplayer Special Home SpawnPoints**
 
