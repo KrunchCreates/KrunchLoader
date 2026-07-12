@@ -165,8 +165,11 @@ KrunchLoader
 by Krunch
 
 Includes code from the Trailmappers Loader by Ridicolas & Jess2005
+
 This mod is a work in progress (WIP) and may contain bugs
+
 Use of this mod is entirely at your OWN RISK
+
 Read the "ReadMe.txt" file that accompanies this mod for more information
 
 Find help & report bugs in the TM Discord modding channel: https://discord.gg/trailmakers
