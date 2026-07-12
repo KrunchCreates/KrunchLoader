@@ -175,4 +175,3 @@ Read the "ReadMe.txt" file that accompanies this mod for more information
 Find help & report bugs in the TM Discord modding channel: https://discord.gg/trailmakers
 
 Buy me a cup of coffee or just send feedback by visiting: https://ko-fi.com/krunchcreates
-

@@ -1,5 +1,7 @@
 # KrunchLoader
-A Custom Loader for Trailmappers designed to make life a little bit easier for mappers.
+by Krunch
+
+A Custom Loader for Trailmappers designed to make life a little bit easier for TrailMakers mappers.
 
 Features:
 
@@ -161,11 +163,15 @@ If you would like separate multiplayer Home SpawnPoints for each player do the f
 ---
 KrunchLoader
 by Krunch
+
 Includes code from the Trailmappers Loader by Ridicolas & Jess2005
+
 This mod is a work in progress (WIP) and may contain bugs
+
 Use of this mod is entirely at your OWN RISK
+
 Read the "ReadMe.txt" file that accompanies this mod for more information
+
 Find help & report bugs in the TM Discord modding channel: https://discord.gg/trailmakers
 
 Buy me a cup of coffee or just send feedback by visiting: https://ko-fi.com/krunchcreates
----
