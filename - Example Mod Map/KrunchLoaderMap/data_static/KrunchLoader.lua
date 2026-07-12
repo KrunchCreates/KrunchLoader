@@ -72,7 +72,7 @@ local customThings = {}
 local wait = 0
 
 --- CUSTOM LOADER VARIABLES
-local modVer = "2026.0.6"
+local modVer = "2026.0.7b"
 local UILoadPercent = 0
 local homeSpawnpointName = "Home"
 local spawnpointInfo
@@ -104,6 +104,7 @@ local tempPos = tm.vector3.Create(0,0,0)
 local nameBoxSpawnTable = {}
 local NB_ID = 0 -- NameBox ID
 local BB_ID = 0 -- BuildBox ID
+local SB_ID = 0 -- SoundBox ID
 local buildBoxBan = true -- if true then build boxes are banned areas for building, otherwise builder boxes are the only areas that allow building
 local UIbuilderMsg = "<size=12><color=#bfb><b>Build Zone - Builder unlocked"
 local tabMapPos = tm.vector3.Create(0, 1000, 0)
@@ -135,6 +136,24 @@ local fastTravelMessage = {
 local pos = {}
 local rot = {}
 local connectedPlayers = {}
+local materialNames = {
+    metal = "Metal",
+    sand = "Sand",
+    stone = "Stone",
+    gravel = "Gravel",
+    grass = "Grass",
+    mud = "Mud",
+    lava = "Lava",
+    asphalt = "Asphalt",
+    snow = "Snow",
+    wood = "Wood",
+    yellowsand = "YellowSand",
+    witheredgrass = "WitheredGrass",
+    iceslippery = "IceSlippery",
+    tundra = "Tundra",
+    snowhard = "SnowHard",
+    grassyellow = "GrassYellow",
+}
 
 --- KEYBINDS
 --- certain special keys require double square brackets instead of quotation marks (eg the \ key should be [[\]])
@@ -199,6 +218,7 @@ function onPlayerJoined(player)
         isInBuilderBox = false,
 		joinMessage = "",
 		joinMessage2 = "",
+		triggeredSound = false,
         }
     
     --- hotkeys
@@ -593,8 +613,6 @@ function loadMap(playerId)
                 end
             end
         end
-    else
-       tm.os.Log("NameBox's already built - skipping")
     end
 
     if BB_ID == 0 then -- proceed if the builderboxes haven't already been loaded
@@ -612,11 +630,80 @@ function loadMap(playerId)
                 tm.physics.RegisterFunctionToCollisionExitCallback(BBobject, "onExitBuilderBox")
             end
         end
-    else
-       tm.os.Log("BuilderBox's already built - skipping")
+    end
+	
+	if SB_ID == 0 then -- proceed if the soundboxes haven't already been loaded SB_ID
+        tm.os.Log("checking for SoundBox objects")
+        for key,value in pairs(objects) do
+            if string.match(value.N, "SoundBox") then
+                tm.os.Log("Found a SoundBox object")
+                local tempName = string.gsub(value.I.CustomTexture, ".Custom Models.SoundBox_", "")
+                tempName = string.gsub(tempName, ".png", "")
+                tempName = string.gsub(tempName, ".jpg", "")
+                tm.os.Log("SoundBox Name: "..tempName)
+				if onCheckSoundName(tempName) then
+					SB_ID = SB_ID + 1
+					local fName = tostring(SB_ID).."enter"
+					local fNameExit = tostring(SB_ID).."exit"
+					local TBpos = tableToVector(value.P)
+					TBpos.y = TBpos.y + levelHeight
+					local TBobject = tm.physics.SpawnBoxTrigger(TBpos, tableToVector(value.S))
+					TBobject.SetIsVisible(false)
+					TBobject.GetTransform().SetRotation(tableToVector(value.R))
+					tm.physics.RegisterFunctionToCollisionEnterCallback(TBobject, fName)
+					tm.physics.RegisterFunctionToCollisionExitCallback(TBobject, fNameExit)
+					local SoundFX = "Amb_PIO_Thit_Meadows_Birds_Coastal_Chirp_B_Play"
+					
+					_G[fName] = function(playerId)
+						if tm.players.GetPlayerTransform(playerId) ~= nil then
+							local playerData = playerDataTable[playerId]
+							if playerData ~= nil then
+								if playerData.triggeredSound == false then
+									playerData.triggeredSound = true
+									tm.audio.PlayAudioAtPosition(SoundFX, TBpos)
+
+								else -- account for TM double triggering bug
+									if playerData.triggeredSound and playerData.nBoxCount == 0 then
+										playerData.triggeredSound = true
+										tm.audio.PlayAudioAtPosition(SoundFX, TBpos)
+
+										playerData.nBoxCount = playerData.nBoxCount + 1
+									else
+										playerData.nBoxCount = playerData.nBoxCount - 1
+									end
+								end
+								tm.os.Log("sound triggered by player: "..tostring(playerData.fastTraveled))
+							end
+						end
+					end
+					
+					_G[fNameExit] = function(playerId)
+						local playerData = playerDataTable[playerId]
+						if playerData.triggeredSound == false then
+							playerData.nBoxCount = 0
+							--playerData.ftTimestamp = 99999999
+						elseif playerData.nBoxCount == 0 then
+							playerData.triggeredSound = false
+							playerData.nBoxCount = 0
+							--playerData.ftTimestamp = tm.os.GetTime()
+						end
+					end
+				end
+            end
+        end
     end
 	------------------------------------------------------------
 end 
+
+function onCheckMaterialName(name)
+	
+	for i,_ in pairs(materialNames) do
+		print(i, name)
+		if i:lower() == name:lower() then
+			return true
+		end
+	end
+end
 
 function update()
 
@@ -690,9 +777,19 @@ function update()
 					
 					--- extract physics materials ------------------------------
 					local tempStr = object.I.CustomTexture
-					_,_,tempStr = string.find(tempStr, "_([%w%s]+)_")
-					if tempStr ~= nil then
-						material = tempStr
+					print("Texture Name:", tempStr)
+					if string.match(tempStr, "mtl_") then
+						print("physics material prefix found")
+						_,_,tempStr = string.find(tempStr, "_([%w%s]+)_")
+						if tempStr ~= nil then
+							print("Material Name:", tempStr)
+							if onCheckMaterialName(tempStr) then
+								material = materialNames[tempStr:lower()]
+								print("Material:", material)
+							else
+								print("invalid material name - ignoring")
+							end
+						end
 					end
 					------------------------------------------------------------
 
@@ -705,11 +802,11 @@ function update()
                     end
                 else
                     if not info.IsStatic then
-                        spawn = tm.physics.SpawnCustomObjectRigidbody(pos, object.N, object.I.CustomTexture, object.I.CustomWeight == 0, object.I.CustomWeight, material)
+                        spawn = tm.physics.SpawnCustomObjectRigidbody(pos, object.N, object.I.CustomTexture, object.I.CustomWeight == 0, object.I.CustomWeight)
                     elseif info.CanCollide then
-                        spawn = tm.physics.SpawnCustomObjectConcave(pos, object.N, nil, material)
+                        spawn = tm.physics.SpawnCustomObjectConcave(pos, object.N, nil)
                     else
-                        spawn = tm.physics.SpawnCustomObject(pos, object.N, nil, material)
+                        spawn = tm.physics.SpawnCustomObject(pos, object.N, nil)
                     end
                 end
             else
