@@ -90,12 +90,12 @@ Load up your map in Trailmakers and you should see the extra features in your ma
 
 You can add a physics material to a custom object by naming a texture in a special way and then applying that texture to the object in TrailMappers. Use the following naming format for your Physics Material textures:
 
-mtl_MaterialName_texturename.png (or .jpg)
+``mtl_MaterialName_texturename.png (or .jpg)``
 
-"mtl" = Material prefix  << allows the code to find objects with special physics materials
-"_MaterialName_" = physics material name  << the script will extract the physics material name from between the underscores
+- ``mtl`` = Material prefix  << allows the code to find objects with special physics materials
+- ``_MaterialName_`` = physics material name  << the script will extract the physics material name from between the underscores
 
-*Note: The name between the underscores must EXACTLY match one of the materials in the Physics Material Names list below (Case Sensitive!)
+*Note: The name between the underscores must EXACTLY match one of the materials in the Physics Material Names list below (Case Sensitive!),*
 
 Texture Naming Examples:
 mtl_Grass_mainterrain.png  << renamed a texture called "mainterrain.png"
@@ -122,7 +122,7 @@ SnowHard
 GrassYellow
 ```
 
-*Note: Any texture name without a Physics Material name will simply use the Asphalt physics material
+*Note: Any texture name without a Physics Material name will simply use the Asphalt physics material*
 
 
 **Adding Extra SpawnPoints in Trailmappers**
@@ -147,7 +147,7 @@ Method:
 
 6. Repeat for each extra SpawnPoint that you want to add
 
-Note: These objects and textures will not be loaded into your actual map when loaded into Trailmakers - they are filtered out and only used for the locations, rotation and names of your SpawnPoints.
+*Note: These objects and textures will not be loaded into your actual map when loaded into Trailmakers - they are filtered out and only used for the locations, rotation and names of your SpawnPoints.*
 
 
 **Multiplayer Special Home SpawnPoints**
