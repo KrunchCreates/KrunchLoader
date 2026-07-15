@@ -56,7 +56,6 @@ tm.physics.AddTexture("data_static\\map_icon.png", "icon")
 
 local useTabMap = false
 local file = tm.os.ReadAllText_Static("tabMapTex.jpg")
-
 if #file > 10000 then
     tm.physics.AddTexture("data_static\\tabMapTex.jpg", "TabMapTex")
     tm.physics.AddMesh("data_static\\tabMapMesh.obj", "TabMapMesh")
@@ -93,8 +92,10 @@ if getMap == "WLD_TestZone" then
     levelHeight = 300
 elseif getMap == "WLD_TheMoon" then
     levelHeight = 0
+	useTabMap = false
 else
     levelHeight = 200
+	useTabMap = false
 end
 local TZWind = false
 local windBox
