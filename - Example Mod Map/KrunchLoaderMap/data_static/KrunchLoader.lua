@@ -108,8 +108,8 @@ local BB_ID = 0 -- BuildBox ID
 local SB_ID = 0 -- SoundBox ID
 local buildBoxBan = true -- if true then build boxes are banned areas for building, otherwise builder boxes are the only areas that allow building
 local UIbuilderMsg = "<size=12><color=#bfb><b>Build Zone - Builder unlocked"
-local tabMapPos = tm.vector3.Create(0, 1000, 0)
-local tabMapCam1Pos = tm.vector3.Create(0, 1000.415, 0)
+local tabMapPos = tm.vector3.Create(0, 5000, 0)
+local tabMapCam1Pos = tm.vector3.Create(0, 5000.415, 0)
 local tabMapCam1Rot = tm.vector3.Create(0, -1, 0)
 local AerialCamMessage
 local AerialCamMessage2
@@ -306,7 +306,7 @@ function doSpawnPoints(playerId)
     local next = next
 	if next(homeSpawnPointTable) or #homeSpawnPointTable then
         fastTravelEnabled = true
-        tm.os.Log("adding player specific home spawnpoint locations")
+        tm.os.Log("assigning player specific home spawnpoint locations")
         if playerId ~= 0 then
             for k,v in pairs(homeSpawnPointTable) do
                 if k == tostring(playerId) then
@@ -867,7 +867,7 @@ function update()
             tm.players.SetBuilderEnabled(player.playerId, true)
             playAudioFX(player.playerId, SFX_mapLoaded)
             UIMain(player.playerId)
-            onSP1(player.playerId)
+            onSP1(player.playerId, "mapLoaded")
 			tm.os.Log("Map finished loading - playerId: " ..tostring(player.playerId))
         end
         ------------------------------------------------------------
@@ -905,7 +905,7 @@ function playerUpdate(playerId)
 		playerData.lateJoin = false
 		playerData.joinStamp = tm.os.GetTime()
 		UIMain(playerId)
-		onSP1(playerId)
+		onSP1(playerId, "mapLoaded")
 		-- do secondary join message (for late joiners)
 		tm.playerUI.RemoveSubtleMessageForAll(playerData.joinMessage)
 		playerData.joinMessage2 = tm.playerUI.AddSubtleMessageForAllPlayers(tm.players.GetPlayerName(playerId), onPlayerJoinMessage(playerId), 10, "icon")
@@ -1275,16 +1275,18 @@ function onButtonSP1(callbackData)
     onSP1(playerId)
 end
 
-function onSP1(playerId)
+function onSP1(playerId, state)
     
     local playerData = playerDataTable[playerId]
     if tm.players.GetPlayerIsInBuildMode(playerId) then
         playAudioFX(playerId, SFX_negative)
         return
     end
-    playerData.fastTraveled = true
-    playerData.nBoxCount = 0
-    playerData.nBoxCount2 = 0
+	if state == nil then
+		playerData.fastTraveled = true
+		playerData.nBoxCount = 0
+		playerData.nBoxCount2 = 0
+	end
     local SPID = ""
     local sp1Pos = tableToVector(spawnpointInfo.P)
     sp1Pos.y = sp1Pos.y + levelHeight
@@ -1298,19 +1300,24 @@ function onSP1(playerId)
 			SPID = "-"..tostring(playerId)
         end
     end
-    if isSpawnpointOccupied(playerId, sp1Pos, sp1Rot.y) then
-        tm.playerUI.AddSubtleMessageForPlayer(playerId, "Spawn prevented!", "Spawnpoint is occupied", 5, "icon")
-        return
-    end
-    local takeVehicle = false
-    if takeBlueprintToSpawn then
-        takeVehicle = true
-    end
+	local takeVehicle = false
+	if state == nil then
+		if isSpawnpointOccupied(playerId, sp1Pos, sp1Rot.y) then
+			tm.playerUI.AddSubtleMessageForPlayer(playerId, "Spawn prevented!", "Spawnpoint is occupied", 5, "icon")
+			return
+		end
+		
+		if takeBlueprintToSpawn then
+			takeVehicle = true
+		end
+	end
     tm.players.SetPlayerSpawnLocation(playerId, "sp1"..SPID)
     tm.players.TeleportPlayerToSpawnPoint(playerId, "sp1"..SPID, takeVehicle)
     playAudioFX(playerId, SFX_spawnWarp)
     UIMain(playerId)
-    tm.playerUI.AddSubtleMessageForPlayer(playerId, homeSpawnpointName, onPlayerFastTravelMessage(playerId), 10, "icon")
+	if state == nil then
+		tm.playerUI.AddSubtleMessageForPlayer(playerId, homeSpawnpointName, onPlayerFastTravelMessage(playerId), 10, "icon")
+	end
 end
 
 -- function loadExtraTextures()
