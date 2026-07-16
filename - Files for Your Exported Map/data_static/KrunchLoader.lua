@@ -133,6 +133,7 @@ local fastTravelMessage = {
     "Slow Travel is underappreciated",
     "You can run but you can't hide",
     "Did you bring your toothbrush?",
+    "Next time just walk",
     }
 local pos = {}
 local rot = {}
