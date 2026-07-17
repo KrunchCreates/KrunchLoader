@@ -130,7 +130,7 @@ The original Trailmappers SpawnPoint will always be the "Home" SpawnPoint. You c
 
 1. Decid what name you'd like to use for your additional SpawnPoint
 
-2. Make a copy of one of the SpawnPoint textures (eg. ``SpawnPoint_01_Area51.png``) and make sure it is in the ***[Custom Models]*** folder in Trailmappers
+2. Make a copy of one of the SpawnPoint textures (eg. ``SpawnPoint_01_Area51.png``) and make sure it is in the **[Custom Models]** folder in Trailmappers
 
 3. Carefully rename only the part of the name that is after "SpawnPoint_" by following this example:
   - For a SpawnPoint called "Black Tower" that is to be the first button after "Home", you copy and rename ``SpawnPoint_01_Area51.png`` >> to >> ``SpawnPoint_01_Black Tower.png``
