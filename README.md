@@ -3,7 +3,7 @@ by Krunch
 
 A Custom Loader for Trailmappers designed to make life a little bit easier for TrailMakers mappers.
 
-Features:
+**FEATURES:**
 
 * Physics Materials!
   - a physics material (eg Grass, Mud, etc.) defines how the surface of an object reacts to objects that touch it 
@@ -47,8 +47,8 @@ Features:
 * SoundFX Triggers
   - Coming soon! add triggers to cause sound effects to play 
 
-
-**How to Install KrunchLoader**
+---
+**HOW TO INSTALL KRUNCHLOADER**
 
 1. Extract the zip file to a folder on your computer
 
@@ -74,24 +74,24 @@ Features:
 
 6. You can now load up your map in Trailmakers and see the extra features
 
+---
+**HOW TO ADD THE KRUNCHLOADER FEATURES TO YOUR MAP**
 
-**How to add the KrunchLoader Features to your Map**
-
-* SoundFX Triggers
-
+**SoundFX Triggers**
 Coming soon!
-You can add triggers to cause sound effects to play  
+You can add triggers to cause sound effects to play 
 
-* Physics Materials
+---
+**Physics Materials**
 
 You can add a physics material to a custom object by naming a texture in a special way and then applying that texture to the object in TrailMappers.
 Use the following naming format for your Physics Material textures:
 
 ``{mtl}{_MaterialName_}{texturename}{.extension}``
 
-  - ``{mtl}`` = Material prefix  << allows the code to find objects with special physics materials
+  - ``{mtl}`` = material prefix  << allows the code to find objects with special physics materials
   - ``{_MaterialName_}`` = physics material name (case sensitive)  << the script will extract the physics material name from between the underscores
-    *Note: The MaterialName between the underscores must EXACTLY match one of the materials in the Physics Material Names list below (Case Sensitive!),*
+    *Note: The MaterialName between the underscores must EXACTLY match one of the materials in the Physics Material Names list below (Case Sensitive!)*
   - ``{texturename}`` = texture name << your name for the texture but must be no more than 12 characters long
   - ``{.extension}`` = existing file extension << usually png or jpg
 
@@ -121,9 +121,8 @@ GrassYellow
 ```
 *Note: Objects using a texture without a Physics Material simply use the Asphalt physics material*
 
-
-* Extra SpawnPoints
-
+---
+**Extra SpawnPoints**
 The original Trailmappers SpawnPoint will always be the "Home" SpawnPoint. You can add additional ones in Trailmappers by following the method below:
 *Note: Your custom SpawnPoints can be displayed on the Fast Travel list in any order you choose ("Home" is always at the top of the list)
 
@@ -149,9 +148,8 @@ The original Trailmappers SpawnPoint will always be the "Home" SpawnPoint. You c
 
 10. Load your map in Trailmakers
 
-
-* Multiplayer Special Home SpawnPoints
-
+---
+**Multiplayer Special Home SpawnPoints**
 If you would like separate multiplayer Home SpawnPoints for each player do the following (the host always uses the base home SpawnPoint, only other players can have different home spawn points). This process is very similar to the above process however the textures are already named and ready to go:
 
 1. As before place and rotate a new SpawnPoint object where you would like the first joining player to spawn
@@ -166,9 +164,8 @@ If you would like separate multiplayer Home SpawnPoints for each player do the f
 
 6. Load your map in Trailmakers
 
-
-* Area Name Zones
-
+---
+**Area Name Zones**
 Add trigger boxes to create zones that will display an area name when a player enters that zone:
 
 1. Decide what name you'd like to use for a new named zone
@@ -193,9 +190,8 @@ Add trigger boxes to create zones that will display an area name when a player e
 
 10. Load your map in Trailmakers
 
-
-* No-builder Zones
-
+---
+**No-builder Zones**
 Add trigger boxes to create zones that will prevent all players from opening the builder:
 
 1. Load your map in Trailmappers, find the ``BuilderBox.obj`` model in the **Custom Models** tab and place it into your map somewhere
