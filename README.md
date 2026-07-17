@@ -78,7 +78,7 @@ A Custom Loader for Trailmappers designed to make life a little bit easier for T
 ---
 **HOW TO ADD THE KRUNCHLOADER FEATURES TO YOUR MAP**
 
-> 
+> --
 > **SoundFX Triggers** 
 
 Coming soon! 
