@@ -78,12 +78,12 @@ A Custom Loader for Trailmappers designed to make life a little bit easier for T
 ---
 **HOW TO ADD THE KRUNCHLOADER FEATURES TO YOUR MAP**
 
--
+ 
 **SoundFX Triggers**
 Coming soon!
 You can add triggers to cause sound effects to play 
 
--
+`
 **Physics Materials**
 
 You can add a physics material to a custom object by naming a texture in a special way and then applying that texture to the object in TrailMappers.
@@ -123,7 +123,7 @@ GrassYellow
 ```
 *Note: Objects using a texture without a Physics Material simply use the Asphalt physics material*
 
--
+.
 **Extra SpawnPoints**
 
 The original Trailmappers SpawnPoint will always be the "Home" SpawnPoint. You can add additional ones in Trailmappers by following the method below:
@@ -151,7 +151,7 @@ The original Trailmappers SpawnPoint will always be the "Home" SpawnPoint. You c
 
 10. Load your map in Trailmakers
 
--
+'
 **Multiplayer Special Home SpawnPoints**
 
 If you would like separate multiplayer Home SpawnPoints for each player do the following (the host always uses the base home SpawnPoint, only other players can have different home spawn points). This process is very similar to the above process however the textures are already named and ready to go:
@@ -168,7 +168,7 @@ If you would like separate multiplayer Home SpawnPoints for each player do the f
 
 6. Load your map in Trailmakers
 
--
+~
 **Area Name Zones**
 
 Add trigger boxes to create zones that will display an area name when a player enters that zone:
@@ -195,7 +195,7 @@ Add trigger boxes to create zones that will display an area name when a player e
 
 10. Load your map in Trailmakers
 
--
+|
 **No-builder Zones**
 
 Add trigger boxes to create zones that will prevent all players from opening the builder:
