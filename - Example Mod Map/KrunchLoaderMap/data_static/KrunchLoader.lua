@@ -71,7 +71,7 @@ local customThings = {}
 local wait = 0
 
 --- CUSTOM LOADER VARIABLES
-local modVer = "2026.0.7b"
+local modVer = "2026.0.7"
 local UILoadPercent = 0
 local homeSpawnpointName = "Home"
 local spawnpointInfo

@@ -11,7 +11,7 @@ Features:
 
 * Multiple SpawnPoints
   - add as many extra SpawnPoints as you'd like
-  - Your SpawnPoints can be displayed on the Fast Travel list in any order you choose 
+  - your SpawnPoints can be displayed on the Fast Travel list in any order you choose 
 
 * Per Player Home SpawnPoints
   - setup individual home spawnpoints for each player that joins in multiplayer
@@ -25,7 +25,7 @@ Features:
   - helps prevent server-ending-blueprint-merging-nuclear-explosions
 
 * Tab for Map View (Test Zone)
-  - If a map image has been added press Tab to show a full screen map view of the ... er map
+  - if a map image has been added press Tab to show a full screen map view of the ... er map
   - press Tab again to exit the map view
 
 * Aerial Views
@@ -38,69 +38,67 @@ Features:
   - server performance: globally delete any unoccupied structures ie >50 metres from owner
   - server performance: globally delete ALL structures on the server
 
-* Area Name Triggers
-  - add an area with a name that shows up when players move into that area
+* Area Name Zones
+  - add a zone with a name that shows up when players move into that area
   
 * No-Builder zones
   - add areas where players are blocked from opening the builder 
+  
+* SoundFX Triggers
+  - Coming soon! add triggers to cause sound effects to play 
 
 
-**How to install the KrunchLoader Kit**
+**How to Install KrunchLoader**
 
 1. Extract the zip file to a folder on your computer
 
-2. Navigate into the "KrunchLoaderKit" folder:
+2. Open that folder to view it's contents:
 
-  - [Example Mod Map]
-    - [KrunchLoaderMap] << copy this folder to Trailmakers [mods] folder
+  - [Example Mod Map] << this is a simple example map that you can play in Trailmakers to see how the special features work
 
-  - [Files for Trailmappers]
-    - [Custom Models] << copy this folder to the TrailMappers [Custom Models] folder
-	- [Saves] << copy this folder to the TrailMappers [Saves] folder
+  - [Files for Trailmappers] << contains the models and textures that you can use to add special features to your map
 
-  - [Files for Exported Maps]
-    - data_static  << copy this folder to your exported map folder in the Trailmakers [mods] folder
+  - [Files for Exported Maps] << contains the files that activate the special features in your map
+    *Explanation of files in [data_static]:*
+     - ``KrunchLoader.lua`` << the actual replacement loader script
+     - ``main.lua`` << special pointer file which needs to be copied over the one in the root map folder **after every Trailmappers export** (always leave a copy of it here)
+     - ``map_icon.png`` << custom icon for messages in your map (you can replace this with your own if you like but there must be a file with that name in here)
+     - ``tabMapMesh.obj`` << special object for the Tab key map view. It only activates if you have a file called tabMapTex.jpg in this folder (you can make your own map view image)
 
-* KrunchLoaderMap is a simple example map that you can play in Trailmakers to see how the special features work
-* the [Files for Trailmappers/Custom Models] contains the models and textures that you can use to add special features to your map
-* the [Files for Trailmappers/Saves] contains an example map that you can open in Trailmappers to see how the special features are placed
+3. Open [Files for Exported Maps] and copy the [data_static] folder into your map's [data_static] folder
 
+4. Also copy the ``main.lua`` file into your map's base folder overwriting the existing ``main.lua`` file there
 
-**Adding The KrunchLoader Kit To An Existing or New Exported Map**
+5. Repeat step 4 each time you re-export your map from Trailmappers (as the Trailmappers export overwrites the main.lua file)
+*Note: You'll find a copy of the special main.lua file in your map's [data_static] folder
 
-KrunchLoader works by replacing the original Trailmappers loader script with a new custom one (KrunchLoader.lua).
-
-To make this work for your map do the following:
-
-copy the following files from the data_static folder in the kit into your map's data_static folder:
-
-- KrunchLoader.lua << the actual replacement loader script
-- main.lua << special pointer file. This needs to be copied over the one in the root map folder after every Trailmappers export. Good idea to leave a copy of it here
-- map_icon.png << custom icon for messages in your map. You can replace this with your own if you like but there must be a file with that name in here,
-- tabMapMesh.obj << special object for the Tab key map view. It only activates if you have a file called tabMapTex.jpg in this folder (you can make your own map view image),
-
-Now that you've copied those files into your map's data_static folder you are ready to activate the KrunchLoader for your map.
-
-Copy the main.lua file from the data_static folder into your map's folder, overwriting the existing main.lua file that Trailmappers created (this step needs to be done EVERY TIME YOU RE-EXPORT YOUR MAP from Trailmappers as the export overwrites the main.lua file). This will now 'point' to the new KrunchLoader script in the data_static folder.,
-
-Load up your map in Trailmakers and you should see the extra features in your map.
+6. You can now load up your map in Trailmakers and see the extra features
 
 
-**How to use Physics Materials**
+**How to add the KrunchLoader Features to your Map**
 
-You can add a physics material to a custom object by naming a texture in a special way and then applying that texture to the object in TrailMappers. Use the following naming format for your Physics Material textures:
+* SoundFX Triggers
 
-mtl_MaterialName_texturename.png (or .jpg)
+Coming soon!
+You can add triggers to cause sound effects to play  
 
-"mtl" = Material prefix  << allows the code to find objects with special physics materials
-"_MaterialName_" = physics material name  << the script will extract the physics material name from between the underscores
+* Physics Materials
 
-*Note: The name between the underscores must EXACTLY match one of the materials in the Physics Material Names list below (Case Sensitive!)
+You can add a physics material to a custom object by naming a texture in a special way and then applying that texture to the object in TrailMappers.
+Use the following naming format for your Physics Material textures:
+
+``{mtl}{_MaterialName_}{texturename}{.extension}``
+
+  - ``{mtl}`` = Material prefix  << allows the code to find objects with special physics materials
+  - ``{_MaterialName_}`` = physics material name (case sensitive)  << the script will extract the physics material name from between the underscores
+    *Note: The MaterialName between the underscores must EXACTLY match one of the materials in the Physics Material Names list below (Case Sensitive!),*
+  - ``{texturename}`` = texture name << your name for the texture but must be no more than 12 characters long
+  - ``{.extension}`` = existing file extension << usually png or jpg
 
 Texture Naming Examples:
-mtl_Grass_mainterrain.png  << renamed a texture called "mainterrain.png"
-mtl_Sand_sandyzones.png  << renamed a texture called "sandyzones.png"
-mtl_IceSlippery_shinysmooth.jpg  << renamed a texture called "shinysmooth.jpg"
+``mtl_Grass_mainterrain.png``  << renamed a texture called "mainterrain.png"
+``mtl_Sand_sandyzones.png``  << renamed a texture called "sandyzones.png"
+``mtl_IceSlippery_shinysmooth.jpg``  << renamed a texture called "shinysmooth.jpg"
 
 Physics Material Names (Case Sensitive!)
 ```
@@ -121,46 +119,102 @@ Tundra
 SnowHard
 GrassYellow
 ```
+*Note: Objects using a texture without a Physics Material simply use the Asphalt physics material*
 
-*Note: Any texture name without a Physics Material name will simply use the Asphalt physics material
 
+* Extra SpawnPoints
 
-**Adding Extra SpawnPoints in Trailmappers**
+The original Trailmappers SpawnPoint will always be the "Home" SpawnPoint. You can add additional ones in Trailmappers by following the method below:
+*Note: Your custom SpawnPoints can be displayed on the Fast Travel list in any order you choose ("Home" is always at the top of the list)
 
-The original Trailmappers SpawnPoint will always be the "Home" SpawnPoint. You can add additional ones by following the method below.
+1. Decid what name you'd like to use for your additional SpawnPoint
 
-* Your custom SpawnPoints can be displayed on the Fast Travel list in any order you choose (note that "Home" is always at the top of the list)
+2. Make a copy of one of the SpawnPoint textures (eg. ``SpawnPoint_01_Area51.png``) and make sure it is in the ***[Custom Models]*** folder in Trailmappers
 
-Method:
+3. Carefully rename only the part of the name that is after "SpawnPoint_" by following this example:
+  - For a SpawnPoint called "Black Tower" that is to be the first button after "Home", you copy and rename ``SpawnPoint_01_Area51.png`` >> to >> ``SpawnPoint_01_Black Tower.png``
+  - For another SpawnPoint called "White Tower" that is to be the second button after "Home", you copy and rename ``SpawnPoint_01_Area51.png`` >> to >> ``SpawnPoint_02_White Tower.png``
 
-1. Decide what names you'd like to use for your additional SpawnPoints
-
-2. Make a copy of one of the SpawnPoint textures (eg. ``SpawnPoint_01_Area51.png``) and make sure it is in the **Custom Models** folder in Trailmappers
-
-3. CAREFULLY rename only the part of the name that is after "SpawnPoint_" in the following way:
-    Eg For a SpawnPoint called "Black Tower" that is to be the first button after "Home", you copy and rename ``SpawnPoint_01_Area51.png`` >> to >> ``SpawnPoint_01_Black Tower.png``
-	For another SpawnPoint called "White Tower" that is to be the second button after "Home", you copy and rename ``SpawnPoint_01_Area51.png`` >> to >> ``SpawnPoint_02_White Tower.png``
-
-4. Load your map in Trailmappers and find the ``SpawnPoint.obj`` model in the **Custom Models** tab and place it into your map somewhere (also rotate it if needed)
+4. Load your map in Trailmappers, find the ``SpawnPoint.obj`` model in the **Custom Models** tab and place it into your map somewhere
 
 5. Add the texture that you renamed earlier to that object
 
-6. Repeat for each extra SpawnPoint that you want to add
+6. Reposition and rotate it as needed
 
-Note: These objects and textures will not be loaded into your actual map when loaded into Trailmakers - they are filtered out and only used for the locations, rotation and names of your SpawnPoints.
+7. Repeat for each extra SpawnPoint that you want to add
+
+8. Export your map
+
+9. Re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
+
+10. Load your map in Trailmakers
 
 
-**Multiplayer Special Home SpawnPoints**
+* Multiplayer Special Home SpawnPoints
 
 If you would like separate multiplayer Home SpawnPoints for each player do the following (the host always uses the base home SpawnPoint, only other players can have different home spawn points). This process is very similar to the above process however the textures are already named and ready to go:
 
-1. As before place and rotate a new SpawnPoint object where you would like the first joining player to spawn.
+1. As before place and rotate a new SpawnPoint object where you would like the first joining player to spawn
 
 2. Use the texture called ``SpawnPoint_ID_1`` on that object and that will become that player's home spawnpoint
 
 3. Repeat for any other ones you want to add (up to ID_7)
 
----
+4. Export your map
+
+5. Re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
+
+6. Load your map in Trailmakers
+
+
+* Area Name Zones
+
+Add trigger boxes to create zones that will display an area name when a player enters that zone:
+
+1. Decide what name you'd like to use for a new named zone
+
+2. Make a copy of one of the NameBox textures (eg. ``NameBox_Area51.png``) and make sure it is in the ***[Custom Models]*** folder in Trailmappers
+
+3. Carefully rename only the part of the name that is after "NameBox_" by following this example:
+  - For a NameBox called "Black Tower" you copy and rename ``NameBox_Area51.png`` >> to >> ``NameBox_Black Tower.png``
+  - For another NameBox called "White Tower" you copy and rename ``NameBox_01_Area51.png`` >> to >> ``NameBox_White Tower.png``
+
+4. Load your map in Trailmappers, find the ``NameBox.obj`` model in the **Custom Models** tab and place it into your map somewhere
+
+5. Position, scale and rotate it as needed
+
+6. Add the texture that you renamed earlier to that object
+
+7. Repeat for each extra NameBox that you want to add
+
+8. Export your map
+
+9. Re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
+
+10. Load your map in Trailmakers
+
+
+* No-builder Zones
+
+Add trigger boxes to create zones that will prevent all players from opening the builder:
+
+1. Load your map in Trailmappers, find the ``BuilderBox.obj`` model in the **Custom Models** tab and place it into your map somewhere
+
+2. Add the ``BuilderBox.png`` texture to that object
+
+3. Position, scale and rotate it as needed
+
+4. Repeat for each extra BuilderBox that you want to add
+
+5. Export your map
+
+6. Re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
+
+7. Load your map in Trailmakers
+
+
+-----------------------------------
+
 KrunchLoader
 by Krunch
 
