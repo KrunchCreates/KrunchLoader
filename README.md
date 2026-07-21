@@ -24,9 +24,10 @@ A Custom Loader for Trailmappers designed to make life a little bit easier for T
   - system to stop anyone spawning at a spawnpoint if it is already occupied by a player or structure
   - helps prevent server-ending-blueprint-merging-nuclear-explosions
 
-* Tab for Map View (Test Zone)
-  - if a map image has been added press Tab to show a full screen map view of the ... er map
-  - press Tab again to exit the map view
+* Custom Map View
+  - if a custom map image has been added press Tab or Page Up to show a full screen map view
+  - press the key again to exit the map view
+  - Tab is blocked on maps other than Test Zone
 
 * Aerial Views
   - press numpad 0 to see an aerial view from high above the map origin point
