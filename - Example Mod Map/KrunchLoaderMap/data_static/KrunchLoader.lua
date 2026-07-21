@@ -87,15 +87,15 @@ local modDelta = 60
 local slowDelta = 12
 local playerDataTable = {}
 local getMap = tm.physics.GetMapName()
-local levelHeight = 0
+local baseHeight = 0
 if getMap == "WLD_TestZone" then
-    levelHeight = 300
+    baseHeight = 300
 elseif getMap == "WLD_TheMoon" then
-    levelHeight = 0
-	useTabMap = false
+    baseHeight = 0
+	--useTabMap = false
 else
-    levelHeight = 200
-	useTabMap = false
+    baseHeight = 200
+	--useTabMap = false
 end
 local TZWind = false
 local windBox
@@ -226,6 +226,7 @@ function onPlayerJoined(player)
     --- hotkeys
     tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onKeyBuilder", keyBuilder)
     tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onTabMap", "tab")
+    tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onViewMap", "home")
     tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onAerialCam", "[0]")
     ---
     
@@ -318,7 +319,7 @@ function doSpawnPoints(playerId)
         end
 	end
     
-    hsp1Pos.y = hsp1Pos.y + levelHeight -- adjust Trailmappers spawnpoint height
+    hsp1Pos.y = hsp1Pos.y + baseHeight -- adjust Trailmappers spawnpoint height
     
     -- create & assign the home spawnpoint
     tm.players.SetSpawnPoint(playerId, hsp1spId, hsp1Pos, hsp1Rot)
@@ -337,7 +338,7 @@ function doSpawnPoints(playerId)
 		for k,v in pairs(spawnPointTable) do
 			count = count + 1
 			local spPos = tableToVector(v.pos)
-			spPos.y = spPos.y + levelHeight
+			spPos.y = spPos.y + baseHeight
 			local spRot = rotationToDirection(v.rot)
 			local spId = "sp"..tostring(v.id)
 			tm.players.SetSpawnPoint(playerId, spId, spPos, spRot)
@@ -354,7 +355,7 @@ function doSpawnPoints(playerId)
 				playerData.nBoxCount = 0
 				playerData.nBoxCount2 = 0
 				local spPosHF = tm.vector3.Create(callbackData.data[1].x, callbackData.data[1].y, callbackData.data[1].z)
-				spPosHF.y = spPosHF.y + levelHeight
+				spPosHF.y = spPosHF.y + baseHeight
 				if isSpawnpointOccupied(playerId, spPosHF, callbackData.data[2]) then
 					tm.playerUI.AddSubtleMessageForPlayer(playerId, "Can't Fast Travel", "Spawnpoint is occupied", 5, "icon")
 					return
@@ -573,7 +574,7 @@ function loadMap(playerId)
                 local fName = tostring(NB_ID).."enter"
                 local fNameExit = tostring(NB_ID).."exit"
                 local TBpos = tableToVector(value.P)
-                TBpos.y = TBpos.y + levelHeight
+                TBpos.y = TBpos.y + baseHeight
                 local TBobject = tm.physics.SpawnBoxTrigger(TBpos, tableToVector(value.S))
                 TBobject.SetIsVisible(false)
                 TBobject.GetTransform().SetRotation(tableToVector(value.R))
@@ -624,7 +625,7 @@ function loadMap(playerId)
                 tm.os.Log("Found a BuilderBox object")
                 BB_ID = BB_ID + 1
                 local BBpos = tableToVector(value.P)
-                BBpos.y = BBpos.y + levelHeight
+                BBpos.y = BBpos.y + baseHeight
                 local BBobject = tm.physics.SpawnBoxTrigger(BBpos, tableToVector(value.S))
                 BBobject.SetIsVisible(false)
                 BBobject.GetTransform().SetRotation(tableToVector(value.R))
@@ -648,7 +649,7 @@ function loadMap(playerId)
 					local fName = tostring(SB_ID).."enter"
 					local fNameExit = tostring(SB_ID).."exit"
 					local TBpos = tableToVector(value.P)
-					TBpos.y = TBpos.y + levelHeight
+					TBpos.y = TBpos.y + baseHeight
 					local TBobject = tm.physics.SpawnBoxTrigger(TBpos, tableToVector(value.S))
 					TBobject.SetIsVisible(false)
 					TBobject.GetTransform().SetRotation(tableToVector(value.R))
@@ -751,7 +752,7 @@ function update()
             -----------------------------------------
 
             pos = tableToVector(object.P)
-            pos.y = pos.y + levelHeight
+            pos.y = pos.y + baseHeight
             
             info = object.I
 
@@ -1040,7 +1041,7 @@ function UIMain(playerId)
         tm.playerUI.AddUILabel(playerId, "Spacer", "──────────────────────")
     end
     if useTabMap then
-        tm.playerUI.AddUILabel(playerId, "UItabMapMsg", "<i>Press Tab for map view")
+        tm.playerUI.AddUILabel(playerId, "UItabMapMsg", "<i>Press Tab or Home for map view")
     end
     if BB_ID > 0 then
         tm.playerUI.AddUILabel(playerId, "UIbuilderMsg", playerData.UIbuilderMsg)
@@ -1289,13 +1290,13 @@ function onSP1(playerId, state)
 	end
     local SPID = ""
     local sp1Pos = tableToVector(spawnpointInfo.P)
-    sp1Pos.y = sp1Pos.y + levelHeight
+    sp1Pos.y = sp1Pos.y + baseHeight
     local sp1Rot = tableToVector(spawnpointInfo.R)
     if playerId ~= 0 then
         if homeSpawnPointTable[tostring(playerId)] ~= nil then
             SPID = tostring(playerId)
             sp1Pos = tableToVector(homeSpawnPointTable[SPID].pos)
-			sp1Pos.y = sp1Pos.y + levelHeight
+			sp1Pos.y = sp1Pos.y + baseHeight
             sp1Rot = rotationToDirection(homeSpawnPointTable[SPID].rot)
 			SPID = "-"..tostring(playerId)
         end
@@ -1451,6 +1452,11 @@ function onTabMap(playerId)
     if not getMap == "WLD_TestZone" then
         return
     end
+    onViewMap(playerId)
+end
+
+function onViewMap(playerId)
+
     if useTabMap then
         local playerData = playerDataTable[playerId]
         if playerData.inAerialCam1 or playerData.inAerialCam2 then
