@@ -226,7 +226,7 @@ function onPlayerJoined(player)
     --- hotkeys
     tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onKeyBuilder", keyBuilder)
     tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onTabMap", "tab")
-    tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onViewMap", "home")
+    tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onViewMap", "page up")
     tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onAerialCam", "[0]")
     ---
     
@@ -1041,7 +1041,7 @@ function UIMain(playerId)
         tm.playerUI.AddUILabel(playerId, "Spacer", "──────────────────────")
     end
     if useTabMap then
-        tm.playerUI.AddUILabel(playerId, "UItabMapMsg", "<i>Press Tab or Home for map view")
+        tm.playerUI.AddUILabel(playerId, "UItabMapMsg", "<i>Press Tab or PgUp for map view")
     end
     if BB_ID > 0 then
         tm.playerUI.AddUILabel(playerId, "UIbuilderMsg", playerData.UIbuilderMsg)
