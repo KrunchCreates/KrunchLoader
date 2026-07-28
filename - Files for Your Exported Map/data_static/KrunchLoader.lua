@@ -71,7 +71,7 @@ local customThings = {}
 local wait = 0
 
 --- CUSTOM LOADER VARIABLES
-local modVer = "2026.0.8"
+local modVer = "2026.0.9"
 local UILoadPercent = 0
 local homeSpawnpointName = "Home"
 local spawnpointInfo
@@ -92,10 +92,8 @@ if getMap == "WLD_TestZone" then
     baseHeight = 300
 elseif getMap == "WLD_TheMoon" then
     baseHeight = 0
-	--useTabMap = false
 else
     baseHeight = 200
-	--useTabMap = false
 end
 local TZWind = false
 local windBox
@@ -161,10 +159,6 @@ local materialNames = {
 --- certain special keys require double square brackets instead of quotation marks (eg the \ key should be [[\]])
 --- quotation keys require the use of an alternative quotation character type (eg "'" or '"')
 --- single square brackets around a number key denote a number pad key (eg. "[1]" is number pad 1, "1" is keyboard 1)
-local keyStraight = "up"
-local keyLeft = "left"
-local keyRight = "right"
-local keyAlt = "down"
 local keyBuilder = "b"
 
 --- sound effects
@@ -257,9 +251,7 @@ function onPlayerJoined(player)
     end
 	
 	connectedPlayers[player.playerId] = tostring(tm.players.GetPlayerName(player.playerId))
-
 	playerDataTable[player.playerId].joinMessage = tm.playerUI.AddSubtleMessageForAllPlayers(tm.players.GetPlayerName(player.playerId), "is joining the server", 30, "icon")
-	
     tm.players.AddCamera(player.playerId, tabMapCam1Pos, tabMapCam1Rot, 9)
 end
 
@@ -520,12 +512,28 @@ function loadMap(playerId)
     
     --- extract extra SpawnPoints info from map file and add to spawnPointTable --- 
     local next = next
-	if next(homeSpawnPointTable) == nil or #homeSpawnPointTable == 0 then
+	if next(homeSpawnPointTable) == nil or #homeSpawnPointTable == 0 then -- check if this table already has entries and proceed if not
         for key,value in pairs(objects) do
             if string.match(value.N, "SpawnPoint") then
                 tm.os.Log("Found a SpawnPoint object")
-                local tempName = string.gsub(value.I.CustomTexture, ".Custom Models.SpawnPoint_", "")
-                tempName = tempName:gsub(".png", "")
+				
+				----------
+				tm.os.Log("Full texture Name: "..value.I.CustomTexture)
+				local sI,eI = string.find(value.I.CustomTexture, "SpawnPoint_")
+				local tempName = ""
+				if sI == nil then
+					tm.os.Log('word "SpawnPoint_" not found')
+					tm.os.Log("Alternative matching used")
+					local pattern = ".*%.([%w%s_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area51.png)
+					tempName = value.I.CustomTexture:match(pattern)
+				else
+					tm.os.Log('word "SpawnPoint_" found')
+					tm.os.Log("Simple matching used")
+					local index = eI+1
+					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s_-]+)", index) -- uses text found after "SpawnPoint_" as the spawnpoint name. It stops at any non-text character such as a full stop
+				end
+				----------
+				
                 if tempName:match("ID_") then
                     tm.os.Log("ID Name: "..tempName)
                     local plrSPID = tempName:sub(-1) -- get last character of string to be used as spawnpoint player ID
@@ -555,7 +563,7 @@ function loadMap(playerId)
                         pos = tableToVector(value.P),
                         rot = tableToVector(value.R),
                         id = SP_ID,
-                    }
+                    }					   
                 end
             end
         end
@@ -567,9 +575,25 @@ function loadMap(playerId)
         for key,value in pairs(objects) do
             if string.match(value.N, "NameBox") then
                 tm.os.Log("Found a NameBox object")
-                local tempName = string.gsub(value.I.CustomTexture, ".Custom Models.NameBox_", "")
-                tempName = string.gsub(tempName, ".png", "")
-                tm.os.Log("NameBox Name: "..tempName)
+				
+				----------
+				tm.os.Log("Full texture Name: "..value.I.CustomTexture)
+				local sI,eI = string.find(value.I.CustomTexture, "NameBox_")
+				local tempName = ""
+				if sI == nil then
+					tm.os.Log('word "NameBox_" not found')
+					tm.os.Log("Alternative matching used")
+					local pattern = ".*%.([%w%s_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area 51.png)
+					tempName = value.I.CustomTexture:match(pattern)
+				else
+					tm.os.Log('word "NameBox_" found')
+					tm.os.Log("Simple matching used")
+					local index = eI+1
+					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s_-]+)", index) -- uses text found after "NameBox_" as the area name. It stops at any non-text character such as a full stop
+				end
+				----------
+				
+				tm.os.Log("NameBox Name: "..tempName)
                 NB_ID = NB_ID + 1
                 local fName = tostring(NB_ID).."enter"
                 local fNameExit = tostring(NB_ID).."exit"
@@ -744,7 +768,7 @@ function update()
                 end
             end
             
-            --- Bypass spawing of these objects -----
+            --- Bypass spawning of these objects -----
             if string.match(object.N, "SpawnPoint") or string.match(object.N, "NameBox") or string.match(object.N, "BuilderBox") then
                 table.remove(needToSpawn,spawnIndex)
                 goto continue
@@ -877,7 +901,6 @@ function update()
         tm.playerUI.RemoveSubtleMessageForAll(message)
         tm.playerUI.AddSubtleMessageForAllPlayers(name, "loaded successfully!", 5, "icon")
         message = ""
-        --loadExtraTextures()
     end
     
     ------------------------------------------------------------
@@ -973,13 +996,6 @@ function playerUpdate(playerId)
         
     end
     --- end of slow player updates ---------------------------------
-    
-	------------------------------------------------------------
-    -- if playerData.doAnim then
-        -- if playerData.frameCount > 35 then playerData.frameCount = 1 end
-        -- loadingAni(playerId)
-    -- end
-	------------------------------------------------------------
 end
 
 function table.tableContains(table,value)
