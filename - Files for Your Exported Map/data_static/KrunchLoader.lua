@@ -524,13 +524,13 @@ function loadMap(playerId)
 				if sI == nil then
 					tm.os.Log('word "SpawnPoint_" not found')
 					tm.os.Log("Alternative matching used")
-					local pattern = ".*%.([%w%s_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area51.png)
+					local pattern = ".*%.([%w%s%(%)%[%]%+_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area51.png)
 					tempName = value.I.CustomTexture:match(pattern)
 				else
 					tm.os.Log('word "SpawnPoint_" found')
 					tm.os.Log("Simple matching used")
 					local index = eI+1
-					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s_-]+)", index) -- uses text found after "SpawnPoint_" as the spawnpoint name. It stops at any non-text character such as a full stop
+					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+_-]+)", index) -- uses text found after "SpawnPoint_" as the spawnpoint name. It stops at any non-pattern character such as a full stop
 				end
 				----------
 				
@@ -583,13 +583,13 @@ function loadMap(playerId)
 				if sI == nil then
 					tm.os.Log('word "NameBox_" not found')
 					tm.os.Log("Alternative matching used")
-					local pattern = ".*%.([%w%s_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area 51.png)
+					local pattern = ".*%.([%w%s%(%)%[%]%+_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area 51.png)
 					tempName = value.I.CustomTexture:match(pattern)
 				else
 					tm.os.Log('word "NameBox_" found')
 					tm.os.Log("Simple matching used")
 					local index = eI+1
-					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s_-]+)", index) -- uses text found after "NameBox_" as the area name. It stops at any non-text character such as a full stop
+					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+_-]+)", index) -- uses text found after "NameBox_" as the area name. It stops at any non-pattern character such as a full stop
 				end
 				----------
 				
