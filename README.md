@@ -51,7 +51,7 @@ A Custom Loader for Trailmappers designed to make life a little bit easier for T
   
 * Dynamic Custom Models
   - Any custom model can become a dynamic rigidbody object that works properly
-  - This system system overcomes the Trailmappers zero weight bug
+  - This system overcomes the Trailmappers zero weight bug
 ---
 ---
 **HOW TO INSTALL KRUNCHLOADER**
