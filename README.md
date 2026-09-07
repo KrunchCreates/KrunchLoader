@@ -43,10 +43,14 @@ A Custom Loader for Trailmappers designed to make life a little bit easier for T
   - add a zone with a name that shows up when players move into that area
   
 * No-Builder zones
-  - add areas where players are blocked from opening the builder 
+  - add areas where players are blocked from opening the builder
   
 * SoundFX Triggers
   - Coming soon! add triggers to cause sound effects to play 
+  
+* Dynamic Custom Models
+  - Any custom model can become a dynamic rigidbody object that works properly
+  - This system system overcomes the Trailmappers zero weight bug
 ---
 ---
 **HOW TO INSTALL KRUNCHLOADER**
@@ -145,11 +149,9 @@ The original Trailmappers SpawnPoint will always be the "Home" SpawnPoint. You c
 
 7. Repeat for each extra SpawnPoint that you want to add
 
-8. Export your map
+8. Export your map and remember to re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
 
-9. Re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
-
-10. Load your map in Trailmakers
+9. Load your map in Trailmakers to see the results
 
 ---
 **Multiplayer Special Home SpawnPoints** 
@@ -162,11 +164,9 @@ If you would like separate multiplayer Home SpawnPoints for each player do the f
 
 3. Repeat for any other ones you want to add (up to ID_7)
 
-4. Export your map
+4. Export your map and remember to re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
 
-5. Re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
-
-6. Load your map in Trailmakers
+5. Load your map in Trailmakers to see the results
 
 ---
 **Area Name Zones** 
@@ -189,11 +189,11 @@ Add trigger boxes to create zones that will display an area name when a player e
 
 7. Repeat for each extra NameBox that you want to add
 
-8. Export your map
+8. Export your map and remember to re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
 
-9. Re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
+9. Load your map in Trailmakers to see the resultExport your map and remember to re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
 
-10. Load your map in Trailmakers
+10. Load your map in Trailmakers to see the results
 
 ---
 **No-builder Zones** 
@@ -208,11 +208,27 @@ Add trigger boxes to create zones that will prevent all players from opening the
 
 4. Repeat for each extra BuilderBox that you want to add
 
-5. Export your map
+5. Export your map and remember to re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
 
-6. Re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
+6. Load your map in Trailmakers to see the results
 
-7. Load your map in Trailmakers
+---
+**Dynamic Custom Models** 
+
+Allow a custom model to become a dynamic rigidbody object with weight:
+
+1. Rename your custom object by adding the "@" symbol followed by a number at the very end of the name. Eg:
+  - For a model called ``SoccerBall.obj`` rename it ``SoccerBall@5.obj``
+
+2. Make sure that this object is in the ***[Custom Models]*** folder in Trailmappers
+
+3. Load your map in Trailmappers, find the ``SoccerBall@5.obj`` model in the **Custom Models** tab, add a texture to it and place it into your map somewhere
+
+4. With the object selected make sure the "Is Static" checkbox is UNCHECKED (remove the checkmark)
+
+5. Export your map and remember to re-copy ``main.lua`` from your map's [data_static] folder into your map's base folder
+
+6. Load your map in Trailmakers to see the results
 
 ---
 ---

@@ -71,7 +71,7 @@ local customThings = {}
 local wait = 0
 
 --- CUSTOM LOADER VARIABLES
-local modVer = "2026.0.9"
+local modVer = "2026.0.10"
 local UILoadPercent = 0
 local homeSpawnpointName = "Home"
 local spawnpointInfo
@@ -155,6 +155,24 @@ local materialNames = {
     grassyellow = "GrassYellow",
 }
 
+
+local cstDynAll = {}
+local cstDynContainers = {}
+local cstDynLogs = {}
+local cstDynSoccerBalls = {}
+
+local pfbDynAll = {}
+local pfbContainers = {}
+local pfbLogs = {}
+local pfbBrownBarrels = {}
+local pfbBlueBarrels = {}
+local pfbSalvage = {}
+local pfbWoodCrateNE = {}
+local pfbWoodCrate = {}
+local pfbMagCube = {}
+local pfbBalls = {}
+local pfbMisc = {}
+
 --- KEYBINDS
 --- certain special keys require double square brackets instead of quotation marks (eg the \ key should be [[\]])
 --- quotation keys require the use of an alternative quotation character type (eg "'" or '"')
@@ -219,7 +237,7 @@ function onPlayerJoined(player)
     
     --- hotkeys
     tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onKeyBuilder", keyBuilder)
-    tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onTabMap", "tab")
+    tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onKeyTabMap", "tab")
     tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onViewMap", "page up")
     tm.input.RegisterFunctionToKeyDownCallback(player.playerId, "onAerialCam", "[0]")
     ---
@@ -524,13 +542,13 @@ function loadMap(playerId)
 				if sI == nil then
 					tm.os.Log('word "SpawnPoint_" not found')
 					tm.os.Log("Alternative matching used")
-					local pattern = ".*%.([%w%s%(%)%[%]%+_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area51.png)
+					local pattern = ".*%.([%w%s%(%)%[%]%+%&_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area51.png)
 					tempName = value.I.CustomTexture:match(pattern)
 				else
 					tm.os.Log('word "SpawnPoint_" found')
 					tm.os.Log("Simple matching used")
 					local index = eI+1
-					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+_-]+)", index) -- uses text found after "SpawnPoint_" as the spawnpoint name. It stops at any non-pattern character such as a full stop
+					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+%&_-]+)", index) -- uses text found after "SpawnPoint_" as the spawnpoint name. It stops at any non-pattern character such as a full stop
 				end
 				----------
 				
@@ -583,13 +601,13 @@ function loadMap(playerId)
 				if sI == nil then
 					tm.os.Log('word "NameBox_" not found')
 					tm.os.Log("Alternative matching used")
-					local pattern = ".*%.([%w%s%(%)%[%]%+_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area 51.png)
+					local pattern = ".*%.([%w%s%(%)%[%]%+%&_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area51.png)
 					tempName = value.I.CustomTexture:match(pattern)
 				else
 					tm.os.Log('word "NameBox_" found')
 					tm.os.Log("Simple matching used")
 					local index = eI+1
-					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+_-]+)", index) -- uses text found after "NameBox_" as the area name. It stops at any non-pattern character such as a full stop
+					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+%&_-]+)", index) -- uses text found after "NameBox_" as the area name. It stops at any non-pattern character such as a full stop
 				end
 				----------
 				
@@ -664,6 +682,24 @@ function loadMap(playerId)
         for key,value in pairs(objects) do
             if string.match(value.N, "SoundBox") then
                 tm.os.Log("Found a SoundBox object")
+				
+				----------
+				tm.os.Log("Full texture Name: "..value.I.CustomTexture)
+				local sI,eI = string.find(value.I.CustomTexture, "SoundBox_")
+				local tempName = ""
+				if sI == nil then
+					tm.os.Log('word "SoundBox_" not found')
+					tm.os.Log("Alternative matching used")
+					local pattern = ".*%.([%w%s%(%)%[%]%+%&_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area51.png)
+					tempName = value.I.CustomTexture:match(pattern)
+				else
+					tm.os.Log('word "SoundBox_" found')
+					tm.os.Log("Simple matching used")
+					local index = eI+1
+					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+%&_-]+)", index) -- uses text found after "SoundBox_" as the area name. It stops at any non-pattern character such as a full stop
+				end
+				----------
+				
                 local tempName = string.gsub(value.I.CustomTexture, ".Custom Models.SoundBox_", "")
                 tempName = string.gsub(tempName, ".png", "")
                 tempName = string.gsub(tempName, ".jpg", "")
@@ -785,25 +821,25 @@ function update()
                 goto continue
             end
 
-            if object.I.CustomModel then
+            if info.CustomModel then
                 
-                if table.tableContains(customThings,object.N) == false then
+                if table.tableContains(customThings, object.N) == false then
                     table.insert(customThings, object.N)
-                    tm.physics.AddMesh(object.N, object.N)
+                    tm.physics.AddMesh(object.N, info.DisplayName)
                     wait = 14
                     goto continue
                 end
                 
-                if object.I.CustomTexture ~= "" then
-                    if table.tableContains(customThings,object.I.CustomTexture) == false then
-                        table.insert(customThings, object.I.CustomTexture)
-                        tm.physics.AddTexture(object.I.CustomTexture, object.I.CustomTexture) 
+                if info.CustomTexture ~= "" then
+                    if table.tableContains(customThings,info.CustomTexture) == false then
+                        table.insert(customThings, info.CustomTexture)
+                        tm.physics.AddTexture(info.CustomTexture, info.CustomTexture) 
                         wait = 14
                         goto continue
                     end
 					
 					--- extract physics materials ------------------------------
-					local tempStr = object.I.CustomTexture
+					local tempStr = info.CustomTexture
 					print("Texture Name:", tempStr)
 					if string.match(tempStr, "mtl_") then
 						print("physics material prefix found")
@@ -819,33 +855,89 @@ function update()
 						end
 					end
 					------------------------------------------------------------
-
-                    if not info.IsStatic then
-                        spawn = tm.physics.SpawnCustomObjectRigidbody(pos, object.N, object.I.CustomTexture, object.I.CustomWeight == 0, object.I.CustomWeight, material)
-                    elseif info.CanCollide then
-                        spawn = tm.physics.SpawnCustomObjectConcave(pos, object.N, object.I.CustomTexture, material)
-                    else
-                        spawn = tm.physics.SpawnCustomObject(pos, object.N, object.I.CustomTexture, material)
-                    end
-                else
-                    if not info.IsStatic then
-                        spawn = tm.physics.SpawnCustomObjectRigidbody(pos, object.N, object.I.CustomTexture, object.I.CustomWeight == 0, object.I.CustomWeight)
-                    elseif info.CanCollide then
-                        spawn = tm.physics.SpawnCustomObjectConcave(pos, object.N, nil)
-                    else
-                        spawn = tm.physics.SpawnCustomObject(pos, object.N, nil)
-                    end
-                end
-            else
-                if string.match(object.N,"Container") or string.match(object.N,"Tire") then
-                    if object.I.IsStatic then
-                        spawn = tm.physics.SpawnObject(pos,object.N)
-                    else
-                        spawn = tm.physics.SpawnObject(pos,object.N .. "_Dynamic")
-                    end
-                else
-                    spawn = tm.physics.SpawnObject(pos,object.N)
-                end
+				else
+					info.CustomTexture = ""
+				end
+				
+				if not info.IsStatic then
+					------------------------------------------------------------
+					local weight = tonumber(info.CustomWeight) -- grab the weight value just in case the user edited their map file (or the Trailmappers weight bug is fixed in the future)
+					if weight < 0.1 then -- it must be the weight bug (Trailmappers exports weight at 0.0 no matter what the user enters in Trailmappers)
+						local tempStr = object.N
+						_,_,weight = string.find(tempStr, ".*%@([%d]+)") -- search for a weight number at the end of the object name
+						weight = tonumber(weight) -- convert any digits into a number - if none then it will be nil
+						if not weight then weight = 50 end -- if weight comes through as nil then use a general default weight so at least all rigibodies have weight
+					end
+					spawn = tm.physics.SpawnCustomObjectRigidbody(pos, info.DisplayName, info.CustomTexture, false, weight, material)
+					print("object.N:", object.N)
+					print("info.DisplayName:", info.DisplayName)
+					print("object weight:", weight)
+					
+					local data = {
+						obj = spawn,
+						model = info.DisplayName,
+						weight = weight,
+						tex = info.CustomTexture,
+						mat = material,
+						pos = pos,
+						rot = tableToVector(object.R),
+						scl = tableToVector(object.S),
+						home = true,
+					}
+					
+					table.insert(cstDynAll, data)
+					
+					if string.match(string.lower(object.N), "soccerball") then
+						table.insert(cstDynSoccerBalls, data)
+					end
+					------------------------------------------------------------
+					
+				elseif info.CanCollide then
+					spawn = tm.physics.SpawnCustomObjectConcave(pos, info.DisplayName, info.CustomTexture, material)
+				else
+					spawn = tm.physics.SpawnCustomObject(pos, info.DisplayName, info.CustomTexture, material)
+				end
+				
+            elseif not info.IsStatic then
+			
+				local objectName = object.N
+				if string.match(object.N, "Container") or string.match(object.N, "Tire") then
+					objectName = object.N .. "_Dynamic"
+				end
+				spawn = tm.physics.SpawnObject(pos, objectName)
+				local scale = tableToVector(object.S)
+				if scale.x == 1 then
+					scale.x = 1.00001
+				end
+				local data = {
+					obj = spawn,
+					model = objectName,
+					pos = pos,
+					rot = tableToVector(object.R),
+					scl = scale,
+				}
+				table.insert(pfbDynAll, data)
+			
+				if string.match(objectName, "Container") then
+					table.insert(pfbContainers, data)
+				elseif string.match(objectName, "ExplosiveBarrel") then
+					table.insert(pfbBrownBarrels, data)
+				elseif string.match(objectName, "Barrel") then
+					table.insert(pfbBlueBarrels, data)
+				elseif string.match(objectName, "SalvageItem") and not string.match(objectName, "_Timed") then
+					table.insert(pfbSalvage, data)
+				elseif string.match(objectName,"PFB_WoodCrate_Not_Empty") then
+					table.insert(pfbWoodCrateNE, data)
+				elseif string.match(objectName,"PFB_WoodCrate") then
+					table.insert(pfbWoodCrate, data)
+				elseif string.match(objectName,"PFB_MagneticCube") then
+					table.insert(pfbMagCube, data)
+				else
+					table.insert(pfbMisc, data)
+				end
+				
+			else
+				spawn = tm.physics.SpawnObject(pos, object.N)
             end
 
             if spawn == nil then
@@ -853,11 +945,11 @@ function update()
             end
 
             spawn.GetTransform().SetRotation(tableToVector(object.R))
-            spawn.GetTransform().SetScale(tableToVector(object.S))
             if object.S.x==1 then
-                spawn.GetTransform().SetScale(tm.vector3.Create(1.00001,object.S.y,object.S.z))
+				object.S.x=1.00001
             end
-            
+            spawn.GetTransform().SetScale(tableToVector(object.S))
+			
             spawn.SetIsVisible(info.IsVisible)
             spawn.SetIsStatic(info.IsStatic)
             
@@ -971,7 +1063,7 @@ function playerUpdate(playerId)
         end
 		
 		------------------------------------------------------------
-        --- insert uiloading updates here
+        --- if needed uiloading updates go here
 		------------------------------------------------------------
         
         if playerData.fastTraveled and tm.os.GetTime() - playerData.ftTimestamp > 0.5 then
@@ -1107,6 +1199,53 @@ function UISettings(playerId)
     tm.playerUI.AddUILabel(playerId, "perfTitleHdr", perfTitle)
     tm.playerUI.AddUIButton(playerId, "RemoveExcessStructuresBtn", "<size=12><b>Remove Excess Blueprints", onButtonReduceStructures)
     tm.playerUI.AddUIButton(playerId, "RemoveALLStructuresBtn", "<size=12><b><color=#fd0>Remove ALL Blueprints!", onClearAllStructures)
+	
+	if #cstDynAll > 0 then
+		tm.playerUI.AddUILabel(playerId, "CustomDynamicObjectsHdr", "─ <b>Custom Dynamic Objects</b> ─")
+		tm.playerUI.AddUIButton(playerId, "cstDynAll", "<size=12><b>Reset ALL Custom Dynamics", onButtonResetDynamics, cstDynAll)
+		if #cstDynSoccerBalls > 0 then
+			tm.playerUI.AddUIButton(playerId, "cstDynSoccerBalls", "<size=12><b>Reset only SoccerBalls", onButtonResetDynamics, cstDynSoccerBalls)
+		end
+		if #cstDynContainers > 0 then
+			tm.playerUI.AddUIButton(playerId, "cstDynContainers", "<size=12><b>Reset only SoccerBalls", onButtonResetDynamics, cstDynContainers)
+		end
+		if #cstDynLogs > 0 then
+			tm.playerUI.AddUIButton(playerId, "cstDynLogs", "<size=12><b>Reset only SoccerBalls", onButtonResetDynamics, cstDynLogs)
+		end
+	end
+	
+	if #pfbDynAll > 0 then
+		tm.playerUI.AddUILabel(playerId, "PrefabDynamicObjectsHdr", "─ <b>Prefab Dynamic Objects</b> ─")
+		tm.playerUI.AddUIButton(playerId, "pfbDynAll", "<size=12><b>Reset ALL Prefab Dynamics", onButtonResetDynamics, pfbDynAll)
+		if #pfbContainers > 0 then
+			tm.playerUI.AddUIButton(playerId, "pfbContainers", "<size=12><b>Reset Prefab Balls", onButtonResetDynamics, pfbContainers)
+		end
+		if #pfbLogs > 0 then
+			tm.playerUI.AddUIButton(playerId, "pfbLogs", "<size=12><b>Reset Blue Barrels", onButtonResetDynamics, pfbLogs)
+		end
+		if #pfbBlueBarrels > 0 then
+			tm.playerUI.AddUIButton(playerId, "pfbBlueBarrels", "<size=12><b>Reset Blue Barrels", onButtonResetDynamics, pfbBlueBarrels)
+		end
+		if #pfbBrownBarrels > 0 then
+			tm.playerUI.AddUIButton(playerId, "pfbBrownBarrels", "<size=12><b>Reset Explosive Barrels", onButtonResetDynamics, pfbBrownBarrels)
+		end
+		if #pfbSalvage > 0 then
+			tm.playerUI.AddUIButton(playerId, "pfbSalvage", "<size=12><b>Reset Explosive Barrels", onButtonResetDynamics, pfbSalvage)
+		end
+		if #pfbWoodCrate > 0 then
+			tm.playerUI.AddUIButton(playerId, "pfbWoodCrate", "<size=12><b>Reset Prefab Balls", onButtonResetDynamics, pfbWoodCrate)
+		end
+		if #pfbMagCube > 0 then
+			tm.playerUI.AddUIButton(playerId, "pfbMagCube", "<size=12><b>Reset Explosive Barrels", onButtonResetDynamics, pfbMagCube)
+		end
+		if #pfbBalls > 0 then
+			tm.playerUI.AddUIButton(playerId, "pfbBalls", "<size=12><b>Reset Prefab Balls", onButtonResetDynamics, pfbBalls)
+		end
+		if #pfbMisc > 0 then
+			tm.playerUI.AddUIButton(playerId, "pfbMisc", "<size=12><b>Reset Prefab Balls", onButtonResetDynamics, pfbMisc)
+		end
+	end
+	
     if not tm.os.IsSingleplayer() then
         tm.playerUI.AddUILabel(playerId, "TitleConnectedPlayers", "── <b>Player Build Status</b> ──")
 		tm.playerUI.AddUILabel(playerId, "BuildStatusKey1", "<b><color=#bfb>●</color> = Allowed")
@@ -1337,12 +1476,6 @@ function onSP1(playerId, state)
 	end
 end
 
--- function loadExtraTextures()
-	
-    -- --tm.physics.AddTexture(".Custom Models.TrackSwitchLeft_on.png", "TrackSwitchLeft_on")
-    -- return
--- end
-
 function onKeyBuilder(playerId)
     
     if tm.players.GetBuilderEnabled(playerId) then
@@ -1458,17 +1591,11 @@ function onSpawnAtPersonalSpawnPoint(playerId)
     tm.playerUI.AddSubtleMessageForPlayer(playerId, "Spawned at PSP", nil, 10, "icon")
 end
 
-function onButtonTabMap(callbackData)
+function onKeyTabMap(playerId)
     
-    onTabMap(callbackData.playerId)
-end
-
-function onTabMap(playerId)
-    
-    if not getMap == "WLD_TestZone" then
-        return
+    if getMap == "WLD_TestZone" then
+        onViewMap(playerId)
     end
-    onViewMap(playerId)
 end
 
 function onViewMap(playerId)
@@ -1585,6 +1712,32 @@ function print(x, ...)
         x = x .. " " .. tostring(v)
     end
     tm.os.Log(x)
+end
+
+function onButtonResetDynamics(callbackData)
+	
+	onResetDynamicObjects(callbackData.playerId, callbackData.data, callbackData.id)
+end
+
+function onResetDynamicObjects(playerId, dynObjectTable, tableName)
+	
+	print("Reset", tableName)
+	local tempSpawnPos = tm.vector3.Create(0, -1000, 0)
+	for k,v in ipairs(dynObjectTable) do
+		if v ~= nil then
+			v.obj.Despawn()
+			if v.tex == nil then
+				v.obj = tm.physics.SpawnObject(tempSpawnPos, v.model)
+			else
+				v.obj = tm.physics.SpawnCustomObjectRigidbody(tempSpawnPos, v.model, v.tex, false, v.weight, v.mat)
+			end
+			v.obj.GetTransform().SetScale(v.scl)
+			v.obj.GetTransform().SetRotation(v.rot)
+			v.obj.GetTransform().SetPosition(v.pos)
+			v.home = true
+			print("Object:", v.model, "reset")
+		end
+	end
 end
 
 tm.os.Log("KrunchLoader Version: "..modVer)
