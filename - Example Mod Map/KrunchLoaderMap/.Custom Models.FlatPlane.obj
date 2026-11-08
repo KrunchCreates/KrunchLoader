@@ -5,7 +5,8 @@
 #     "Static": true,
 #     "Collidable": true,
 #     "Visible": true,
-#     "Texture": ""
+#     "Texture": "\\Custom Models\\tex\\mtl_Grass_WildGrass.png",
+#     "CustomWeight": 0.0
 # }
 # Defaults END
 o FlatTarmac

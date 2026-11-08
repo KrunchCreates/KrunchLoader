@@ -71,7 +71,7 @@ local customThings = {}
 local wait = 0
 
 --- CUSTOM LOADER VARIABLES
-local modVer = "2026.0.10"
+local modVer = "2026.0.11"
 local UILoadPercent = 0
 local homeSpawnpointName = "Home"
 local spawnpointInfo
@@ -310,6 +310,7 @@ function doSpawnPoints(playerId)
     
     -- initialise home spawnpoint
     local hsp1Pos = tableToVector(spawnpointInfo.P)
+    hsp1Pos.y = hsp1Pos.y + baseHeight -- adjust Trailmappers spawnpoint height
     local hsp1Rot = tableToVector(spawnpointInfo.R)
     local hsp1spId = "sp1"
     
@@ -329,8 +330,6 @@ function doSpawnPoints(playerId)
         end
 	end
     
-    hsp1Pos.y = hsp1Pos.y + baseHeight -- adjust Trailmappers spawnpoint height
-    
     -- create & assign the home spawnpoint
     tm.players.SetSpawnPoint(playerId, hsp1spId, hsp1Pos, hsp1Rot)
     tm.players.SetPlayerSpawnLocation(playerId, hsp1spId)
@@ -347,8 +346,7 @@ function doSpawnPoints(playerId)
 	if next(spawnPointTable) or #spawnPointTable then
 		for k,v in pairs(spawnPointTable) do
 			count = count + 1
-			local spPos = tableToVector(v.pos)
-			spPos.y = spPos.y + baseHeight
+			local spPos = v.pos
 			local spRot = rotationToDirection(v.rot)
 			local spId = "sp"..tostring(v.id)
 			tm.players.SetSpawnPoint(playerId, spId, spPos, spRot)
@@ -364,8 +362,7 @@ function doSpawnPoints(playerId)
 				playerData.atArea = ""
 				playerData.nBoxCount = 0
 				playerData.nBoxCount2 = 0
-				local spPosHF = tm.vector3.Create(callbackData.data[1].x, callbackData.data[1].y, callbackData.data[1].z)
-				spPosHF.y = spPosHF.y + baseHeight
+				local spPosHF = tm.vector3.Create(callbackData.data[1])
 				if isSpawnpointOccupied(playerId, spPosHF, callbackData.data[2]) then
 					tm.playerUI.AddSubtleMessageForPlayer(playerId, "Can't Fast Travel", "Spawnpoint is occupied", 5, "icon")
 					return
@@ -392,7 +389,6 @@ function isSpawnpointOccupied(playerId, spPos, spRotY)
     local playerList = tm.players.CurrentPlayers()
     local objectOnSP = false
     spRotY = tonumber(spRotY)
-	local spPos = spPos
     
     -- player proximity check
     for key, player in pairs(playerList) do
@@ -526,235 +522,178 @@ function loadMap(playerId)
     startAmount = #objects
     spawnpointInfo =  list.SpawnpointInfo
     name = list.Name
-    wait = 40
+    wait = 20
     
-    --- extract extra SpawnPoints info from map file and add to spawnPointTable --- 
-    local next = next
-	if next(homeSpawnPointTable) == nil or #homeSpawnPointTable == 0 then -- check if this table already has entries and proceed if not
-        for key,value in pairs(objects) do
-            if string.match(value.N, "SpawnPoint") then
-                tm.os.Log("Found a SpawnPoint object")
-				
-				----------
-				tm.os.Log("Full texture Name: "..value.I.CustomTexture)
-				local sI,eI = string.find(value.I.CustomTexture, "SpawnPoint_")
-				local tempName = ""
-				if sI == nil then
-					tm.os.Log('word "SpawnPoint_" not found')
-					tm.os.Log("Alternative matching used")
-					local pattern = ".*%.([%w%s%(%)%[%]%+%&_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area51.png)
-					tempName = value.I.CustomTexture:match(pattern)
+	for key,value in pairs(objects) do
+	
+		local fixedPos = tableToVector(value.P)
+		fixedPos.y = fixedPos.y + baseHeight
+		
+		--- extract extra SpawnPoints info from map file and add to spawnPointTable --- 
+		if string.match(value.N, "SpawnPoint") then
+			print("Found a SpawnPoint object - texture name:", value.I.CustomTexture)
+			local sI,eI = string.find(value.I.CustomTexture, "SpawnPoint_")
+			local itemName = ""
+			if sI == nil then
+				local pattern = ".*%.([%w%s%(%)%[%]%+%&_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area51.png)
+				itemName = value.I.CustomTexture:match(pattern)
+			else
+				local index = eI+1
+				_,_,itemName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+%&_-]+)", index) -- uses text found after "SpawnPoint_" as the spawnpoint name. It stops at any non-pattern character such as a full stop
+			end
+			----------
+			if itemName:match("ID_") then
+				local plrSPID = itemName:sub(-1) -- get last character of string to be used as spawnpoint player ID
+				local finalName = itemName:gsub("ID_", "")
+				homeSpawnPointTable[plrSPID] = {
+					pos = fixedPos,
+					rot = tableToVector(value.R),
+				}
+			else
+				local tempID = tonumber(itemName:sub(1, 2)) -- get 1st and 2nd characters only - eg "02"
+				local fullName = itemName
+				if tempID ~= nil then
+					tempID = tempID + 1 -- make sure the Home spawnpoint is always 1st in the list
+					fullName = fullName:sub(4) -- exclude the ordering number (first 3 characters) - eg "02_Main Station Platform 1 & 2 N" --> "Main Station Platform 1 & 2 N"
+					SP_ID = tempID
 				else
-					tm.os.Log('word "SpawnPoint_" found')
-					tm.os.Log("Simple matching used")
-					local index = eI+1
-					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+%&_-]+)", index) -- uses text found after "SpawnPoint_" as the spawnpoint name. It stops at any non-pattern character such as a full stop
+					SP_ID = SP_ID + 100
 				end
-				----------
-				
-                if tempName:match("ID_") then
-                    tm.os.Log("ID Name: "..tempName)
-                    local plrSPID = tempName:sub(-1) -- get last character of string to be used as spawnpoint player ID
-                    local finalName = tempName:gsub("ID_", "")
-                    homeSpawnPointTable[plrSPID] = {
-                        pos = tableToVector(value.P),
-                        rot = tableToVector(value.R),
-                    }
-                    tm.os.Log("plrSPID: "..plrSPID)
-                else
-					tm.os.Log("Name: "..tempName)
-					local tempID = tonumber(tempName:sub(1, 2)) -- get 1st and 2nd characters only - eg "02"
-					local fullName = tempName
-					tm.os.Log("Name: "..tempName)
-					if tempID ~= nil then
-						tempID = tempID + 1 -- make sure the Home spawnpoint is always 1st in the list
-						fullName = fullName:sub(4) -- exclude the ordering number (first 3 characters) - eg "02_Main Station Platform 1 & 2 N" --> "Main Station Platform 1 & 2 N"
-						SP_ID = tempID
+				spawnPointTable[SP_ID] = {
+					name = fullName,
+					tex = value.I.CustomTexture,
+					pos = fixedPos,
+					rot = tableToVector(value.R),
+					id = SP_ID,
+				}					   
+			end
+		
+		-- Area Name boxes (NameBox)
+		elseif string.match(value.N, "NameBox") then
+			print("Found a NameBox object - Texture name:", value.I.CustomTexture)
+			local sI,eI = string.find(value.I.CustomTexture, "NameBox_")
+			local itemName = ""
+			if sI == nil then
+				local pattern = ".*%/([%w%s%(%)%[%]%+%&_-]+)%." -- greedy pattern to find the last occurence of a string between the last "/" and last fullstop (eg /Area51.png = "Area51")
+				itemName = value.I.CustomTexture:match(pattern)
+			else
+				local index = eI+1
+				_,_,itemName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+%&_-]+)", index) -- uses text found after "NameBox_" as the area name. It stops at any non-pattern character such as a full stop
+			end
+			
+			NB_ID = NB_ID + 1
+			local fName = "NB"..tostring(NB_ID)
+			local fNameExit = "NB"..tostring(NB_ID).."exit"
+			local NBobject = tm.physics.SpawnBoxTrigger(fixedPos, tableToVector(value.S))
+			NBobject.SetIsVisible(false)
+			NBobject.GetTransform().SetRotation(tableToVector(value.R))
+			tm.physics.RegisterFunctionToCollisionEnterCallback(NBobject, fName)
+			tm.physics.RegisterFunctionToCollisionExitCallback(NBobject, fNameExit)
+						
+			_G[fName] = function(playerId)
+				local playerData = playerDataTable[playerId]
+				if not playerData.fastTraveled then
+					playerData.atArea = itemName
+					tm.playerUI.ShowIntrusiveMessageForPlayer(playerId, itemName, nil, 3)
+				else
+					if playerData.atArea ~= itemName and playerData.collCount == 0 then
+						playerData.atArea = itemName
+						tm.playerUI.ShowIntrusiveMessageForPlayer(playerId, itemName, nil, 3)
+						playerData.collCount = playerData.collCount + 1
 					else
-						SP_ID = SP_ID + 100
+						playerData.collCount = playerData.collCount - 1
 					end
-					tm.os.Log("SP_ID: "..SP_ID)
-					tm.os.Log("Name: "..fullName)
-                    spawnPointTable[SP_ID] = {
-                        name = fullName,
-                        tex = value.I.CustomTexture,
-                        pos = tableToVector(value.P),
-                        rot = tableToVector(value.R),
-                        id = SP_ID,
-                    }					   
-                end
-            end
-        end
-    else
-        tm.os.Log("spawnPointTable already built - skipping")
-    end
-
-    if NB_ID == 0 then -- proceed if the NameBoxes haven't already been loaded
-        for key,value in pairs(objects) do
-            if string.match(value.N, "NameBox") then
-                tm.os.Log("Found a NameBox object")
-				
-				----------
-				tm.os.Log("Full texture Name: "..value.I.CustomTexture)
-				local sI,eI = string.find(value.I.CustomTexture, "NameBox_")
-				local tempName = ""
-				if sI == nil then
-					tm.os.Log('word "NameBox_" not found')
-					tm.os.Log("Alternative matching used")
-					local pattern = ".*%.([%w%s%(%)%[%]%+%&_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area51.png)
-					tempName = value.I.CustomTexture:match(pattern)
-				else
-					tm.os.Log('word "NameBox_" found')
-					tm.os.Log("Simple matching used")
-					local index = eI+1
-					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+%&_-]+)", index) -- uses text found after "NameBox_" as the area name. It stops at any non-pattern character such as a full stop
 				end
-				----------
+				print("player Fast Traveled:", tostring(playerData.fastTraveled))
+			end
+			
+			_G[fNameExit] = function(playerId)
+				local playerData = playerDataTable[playerId]
+				if not playerData.fastTraveled then
+					playerData.atArea = "..."
+					playerData.collCount = 0
+					playerData.ftTimestamp = 999999
+				elseif playerData.collCount == 0 then
+					playerData.atArea = "..."
+					playerData.collCount = 0
+					playerData.ftTimestamp = tm.os.GetTime()
+				end
+				playerData.cargoArrivalTimer = 999999
+			end
+		
+		elseif string.match(value.N, "BuilderBox") then
+			print("Found a BuilderBox object - Texture name:", value.I.CustomTexture)
+			BB_ID = BB_ID + 1
+			local BBobject = tm.physics.SpawnBoxTrigger(fixedPos, tableToVector(value.S))
+			BBobject.SetIsVisible(false)
+			BBobject.GetTransform().SetRotation(tableToVector(value.R))
+			tm.physics.RegisterFunctionToCollisionEnterCallback(BBobject, "onEnterBuilderBox")
+			tm.physics.RegisterFunctionToCollisionExitCallback(BBobject, "onExitBuilderBox")
+		
+		elseif string.match(value.N, "SoundBox") then
+			print("Found a SoundBox object - Texture name:", value.I.CustomTexture)
+			local sI,eI = string.find(value.I.CustomTexture, "SoundBox_")
+			local itemName = ""
+			if sI == nil then
+				local pattern = ".*%.([%w%s%(%)%[%]%+%&_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area51.png)
+				itemName = value.I.CustomTexture:match(pattern)
+			else
+				local index = eI+1
+				_,_,itemName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+%&_-]+)", index) -- uses text found after "SoundBox_" as the area name. It stops at any non-pattern character such as a full stop
+			end
+			
+			local itemName = string.gsub(value.I.CustomTexture, ".Custom Models.SoundBox_", "")
+			itemName = string.gsub(itemName, ".png", "")
+			itemName = string.gsub(itemName, ".jpg", "")
+			
+			if onCheckSoundName(itemName) then
+				SB_ID = SB_ID + 1
+				local fName = tostring(SB_ID).."enter"
+				local fNameExit = tostring(SB_ID).."exit"
+				local SBobject = tm.physics.SpawnBoxTrigger(fixedPos, tableToVector(value.S))
+				SBobject.SetIsVisible(false)
+				SBobject.GetTransform().SetRotation(tableToVector(value.R))
+				tm.physics.RegisterFunctionToCollisionEnterCallback(SBobject, fName)
+				tm.physics.RegisterFunctionToCollisionExitCallback(SBobject, fNameExit)
+				local SoundFX = "Amb_PIO_Thit_Meadows_Birds_Coastal_Chirp_B_Play"
 				
-				tm.os.Log("NameBox Name: "..tempName)
-                NB_ID = NB_ID + 1
-                local fName = tostring(NB_ID).."enter"
-                local fNameExit = tostring(NB_ID).."exit"
-                local TBpos = tableToVector(value.P)
-                TBpos.y = TBpos.y + baseHeight
-                local TBobject = tm.physics.SpawnBoxTrigger(TBpos, tableToVector(value.S))
-                TBobject.SetIsVisible(false)
-                TBobject.GetTransform().SetRotation(tableToVector(value.R))
-                tm.physics.RegisterFunctionToCollisionEnterCallback(TBobject, fName)
-                tm.physics.RegisterFunctionToCollisionExitCallback(TBobject, fNameExit)
-                
-                _G[fName] = function(playerId)
+				_G[fName] = function(playerId)
 					if tm.players.GetPlayerTransform(playerId) ~= nil then
 						local playerData = playerDataTable[playerId]
 						if playerData ~= nil then
-							if playerData.fastTraveled == false then
-								playerData.atArea = tempName
-								tm.playerUI.ShowIntrusiveMessageForPlayer(playerId, tempName, nil, 3)
+							if playerData.triggeredSound == false then
+								playerData.triggeredSound = true
+								tm.audio.PlayAudioAtPosition(SoundFX, TBpos)
+
 							else -- account for TM double triggering bug
-								if playerData.atArea ~= tempName and playerData.nBoxCount == 0 then
-									playerData.atArea = tempName
-									tm.playerUI.ShowIntrusiveMessageForPlayer(playerId, tempName, nil, 3)
+								if playerData.triggeredSound and playerData.nBoxCount == 0 then
+									playerData.triggeredSound = true
+									tm.audio.PlayAudioAtPosition(SoundFX, SBpos)
+
 									playerData.nBoxCount = playerData.nBoxCount + 1
 								else
 									playerData.nBoxCount = playerData.nBoxCount - 1
 								end
 							end
-							tm.os.Log("player Fast Traveled: "..tostring(playerData.fastTraveled))
-						end
-					end
-                end
-                
-                _G[fNameExit] = function(playerId)
-                    local playerData = playerDataTable[playerId]
-                    if not playerData.fastTraveled then
-                        playerData.atArea = ""
-                        playerData.nBoxCount = 0
-                        playerData.ftTimestamp = 99999999
-                    elseif playerData.nBoxCount == 0 then
-                        playerData.atArea = ""
-                        playerData.nBoxCount = 0
-                        playerData.ftTimestamp = tm.os.GetTime()
-                    end
-                end
-            end
-        end
-    end
-
-    if BB_ID == 0 then -- proceed if the builderboxes haven't already been loaded
-        tm.os.Log("checking for BuilderBox objects")
-        for key,value in pairs(objects) do
-            if string.match(value.N, "BuilderBox") then
-                tm.os.Log("Found a BuilderBox object")
-                BB_ID = BB_ID + 1
-                local BBpos = tableToVector(value.P)
-                BBpos.y = BBpos.y + baseHeight
-                local BBobject = tm.physics.SpawnBoxTrigger(BBpos, tableToVector(value.S))
-                BBobject.SetIsVisible(false)
-                BBobject.GetTransform().SetRotation(tableToVector(value.R))
-                tm.physics.RegisterFunctionToCollisionEnterCallback(BBobject, "onEnterBuilderBox")
-                tm.physics.RegisterFunctionToCollisionExitCallback(BBobject, "onExitBuilderBox")
-            end
-        end
-    end
-	
-	if SB_ID == 0 then -- proceed if the soundboxes haven't already been loaded SB_ID
-        tm.os.Log("checking for SoundBox objects")
-        for key,value in pairs(objects) do
-            if string.match(value.N, "SoundBox") then
-                tm.os.Log("Found a SoundBox object")
-				
-				----------
-				tm.os.Log("Full texture Name: "..value.I.CustomTexture)
-				local sI,eI = string.find(value.I.CustomTexture, "SoundBox_")
-				local tempName = ""
-				if sI == nil then
-					tm.os.Log('word "SoundBox_" not found')
-					tm.os.Log("Alternative matching used")
-					local pattern = ".*%.([%w%s%(%)%[%]%+%&_-]+)%." -- greedy pattern to find the last occurence of a string between full stops (eg .Area51.png)
-					tempName = value.I.CustomTexture:match(pattern)
-				else
-					tm.os.Log('word "SoundBox_" found')
-					tm.os.Log("Simple matching used")
-					local index = eI+1
-					_,_,tempName = string.find(value.I.CustomTexture, "([%w%s%(%)%[%]%+%&_-]+)", index) -- uses text found after "SoundBox_" as the area name. It stops at any non-pattern character such as a full stop
-				end
-				----------
-				
-                local tempName = string.gsub(value.I.CustomTexture, ".Custom Models.SoundBox_", "")
-                tempName = string.gsub(tempName, ".png", "")
-                tempName = string.gsub(tempName, ".jpg", "")
-                tm.os.Log("SoundBox Name: "..tempName)
-				if onCheckSoundName(tempName) then
-					SB_ID = SB_ID + 1
-					local fName = tostring(SB_ID).."enter"
-					local fNameExit = tostring(SB_ID).."exit"
-					local TBpos = tableToVector(value.P)
-					TBpos.y = TBpos.y + baseHeight
-					local TBobject = tm.physics.SpawnBoxTrigger(TBpos, tableToVector(value.S))
-					TBobject.SetIsVisible(false)
-					TBobject.GetTransform().SetRotation(tableToVector(value.R))
-					tm.physics.RegisterFunctionToCollisionEnterCallback(TBobject, fName)
-					tm.physics.RegisterFunctionToCollisionExitCallback(TBobject, fNameExit)
-					local SoundFX = "Amb_PIO_Thit_Meadows_Birds_Coastal_Chirp_B_Play"
-					
-					_G[fName] = function(playerId)
-						if tm.players.GetPlayerTransform(playerId) ~= nil then
-							local playerData = playerDataTable[playerId]
-							if playerData ~= nil then
-								if playerData.triggeredSound == false then
-									playerData.triggeredSound = true
-									tm.audio.PlayAudioAtPosition(SoundFX, TBpos)
-
-								else -- account for TM double triggering bug
-									if playerData.triggeredSound and playerData.nBoxCount == 0 then
-										playerData.triggeredSound = true
-										tm.audio.PlayAudioAtPosition(SoundFX, TBpos)
-
-										playerData.nBoxCount = playerData.nBoxCount + 1
-									else
-										playerData.nBoxCount = playerData.nBoxCount - 1
-									end
-								end
-								tm.os.Log("sound triggered by player: "..tostring(playerData.fastTraveled))
-							end
-						end
-					end
-					
-					_G[fNameExit] = function(playerId)
-						local playerData = playerDataTable[playerId]
-						if playerData.triggeredSound == false then
-							playerData.nBoxCount = 0
-							--playerData.ftTimestamp = 99999999
-						elseif playerData.nBoxCount == 0 then
-							playerData.triggeredSound = false
-							playerData.nBoxCount = 0
-							--playerData.ftTimestamp = tm.os.GetTime()
+							print("sound triggered by player:", tostring(playerData.fastTraveled))
 						end
 					end
 				end
-            end
-        end
-    end
+				
+				_G[fNameExit] = function(playerId)
+					local playerData = playerDataTable[playerId]
+					if playerData.triggeredSound == false then
+						playerData.nBoxCount = 0
+						--playerData.ftTimestamp = 99999999
+					elseif playerData.nBoxCount == 0 then
+						playerData.triggeredSound = false
+						playerData.nBoxCount = 0
+						--playerData.ftTimestamp = tm.os.GetTime()
+					end
+				end
+			end
+		end
+	end
 	------------------------------------------------------------
 end 
 
@@ -1450,8 +1389,7 @@ function onSP1(playerId, state)
     if playerId ~= 0 then
         if homeSpawnPointTable[tostring(playerId)] ~= nil then
             SPID = tostring(playerId)
-            sp1Pos = tableToVector(homeSpawnPointTable[SPID].pos)
-			sp1Pos.y = sp1Pos.y + baseHeight
+            sp1Pos = homeSpawnPointTable[SPID].pos
             sp1Rot = rotationToDirection(homeSpawnPointTable[SPID].rot)
 			SPID = "-"..tostring(playerId)
         end
